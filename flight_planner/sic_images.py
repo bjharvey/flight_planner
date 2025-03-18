@@ -1,0 +1,210 @@
+import requests, os
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+from functools import partial
+
+import tkinter as tk
+from tkinter import ttk
+
+from user_config import (datefmt, sic_domains, sic_varnames,
+                         sic_projections)
+from image_utils import harvest_gui, cutout_map, today, set_plotdir
+
+
+
+def get_image(domain=None, var=None, validtime=None,
+              just_make_filename=False, check_exists=True):
+    """Retrieve a single image.
+
+    Optionally checks if the required file already exists and ignores if yes.
+
+    Plots are saved as <plotdir>/<var>_MonD.png
+    """
+    figname = '{}_AMSR2_{}.png'.format(domain, var)
+    plotdir = set_plotdir('sic')
+    localdir = os.path.join(plotdir, domain, validtime.strftime(datefmt))
+    localfigname = os.path.join(localdir, figname)
+                
+    if check_exists and os.path.isfile(localfigname):
+        print('\nSIC_GET_IMAGE: Found file:\n{}'.format(localfigname))
+    else:
+        if just_make_filename:
+            print('\nSIC_GET_IMAGE: Cannot find file, returning None\n{}'.\
+                  format(localfigname))
+            return None
+        else:
+            url = 'https://cryo.met.no/archive/ice-service/icecharts/quicklooks'
+            url = '{}/{}/{}_{}_{}.png'.\
+                format(url, validtime.strftime('%Y/%Y%m%d'), domain,
+                       validtime.strftime('%Y%m%d'), var)
+            print('\nSIC_GET_IMAGE: Retrieving URL\n{}'.format(url))
+            req = requests.get(url)
+            if req.status_code != 200:
+                print('SIC_GET_IMAGE: Download Failed, returning None')
+                return None
+            #print(req.json())
+            #req = requests.get(req.json()['data']['link']['href'])
+            if req.status_code != 200:
+                print('SIC_GET_IMAGE: Download Failed, returning None')
+                return None
+            if os.path.exists(localdir) is False:
+                print('\nSIC_GET_IMAGE: Creating plot directory:\n{}'.format(localdir))
+                os.makedirs(localdir, exist_ok=True)
+            open(localfigname, 'wb').write(req.content)
+            print('SIC_GET_IMAGE: Success, saved as {}'.\
+                  format(localfigname))
+    return localfigname
+
+
+def harvest_date(domain, validtime,
+                 stop=None, finish=None):
+    """Retrieve all plots for one domain/validtime."""
+    if type(validtime) == str: validtime = datetime.strptime(validtime, datefmt)
+    print('\nSIC_HARVEST_DATE({}):\n'.format(validtime))
+    for var in sic_varnames:
+        print('\nSIC_HARVEST_DATE({}): Retrieving {} {}\n'.\
+              format(validtime, domain, var))
+        get_image(domain, var, validtime)
+        if stop is not None:
+            if stop():
+                print('\nSIC_HARVEST_DATE({}): Stopped'.format(validtime))
+                return
+    if finish is not None:
+        finish()
+    print('\nSIC_HARVEST_DATE({}): Finished'.format(validtime))
+
+
+def plot_image(domain, varname, validtime, ax, data=None):
+
+    ds = sic_projections[domain]
+    if type(validtime) == str: validtime = datetime.strptime(validtime, datefmt)
+    ax.set_title('\nVALID: {}'.\
+                 format(validtime.strftime('%HZ %a %d %b %Y')), loc='right')
+
+    # Load image if not provided in data
+    if data is None:
+        figname = get_image(domain, varname, validtime,
+                            just_make_filename=True)
+        if figname is None:
+            ax.set_title('SIC: {}\n<no image found>'.format(domain), loc='left')
+            return None, []
+        data = plt.imread(figname)
+
+    # Reset _threshold for overlaying image - overwise get offset
+    # Not sure what's going on here!
+    ims = ax.imshow(cutout_map(data), aspect='equal',
+                    transform=ds['proj'], origin='upper',
+                    extent=ds['orig_extent'])
+
+    ax.set_title('SIC: {}\n{}'.\
+                 format(domain, varname),
+                 loc='left')
+    ims = [ims]
+    
+    # Colorbar
+    if hasattr(ax, 'axcb'):
+        ims.append(ax.axcb.imshow(cutout_map(data)[1800:2180, 6:1713]))
+
+    return data, ims
+  
+    
+def setup_ax(self):
+    domain = self.MetVars['sic']['domain'].get()
+    print('\nSIC_SETUP:', domain, self.layout['ax'])
+    axpos = self.layout['ax'].copy()
+    dy = axpos[3] * 0.2 if self.include_cb else 0
+    axpos[1] = axpos[1] + dy           # Add room for colorbar
+    axpos[3] = axpos[3] - dy
+    ds = sic_projections[domain]
+    ax = self.fig.add_axes(axpos, projection=ds['proj'])
+    self._add_gridlines(ax)
+    ax.set_extent(ds['extents'], crs=ds['proj'])
+    ds['orig_extent'] = ax.get_extent() # Store for adding png after zooming
+    ax.set_extent(self.initial_extent, crs=ccrs.PlateCarree())
+    if self.include_cb:
+        print('Adding colorbar')
+        ax.axcb = self.fig.add_axes([self.layout['ax'][0],
+                                     self.layout['ax'][1],
+                                     self.layout['ax'][2],
+                                     axpos[1] * 0.98 - self.layout['ax'][1]])
+        ax.axcb.set_axis_off()
+    self.coast = ax.coastlines('50m')
+    self.ax = ax
+
+
+def update_plot(self, key=None, dummy=None):
+    """Update met with current state"""
+    if key == 'domain':
+        self.setup_ax()
+        self.update_lines()
+        return
+    print('\nSIC_UPDATE:')
+    # If this (domain, varname, fcsttime, validtime) is already loaded
+    # then use that to avoid reloading
+    Vars = {k: v.get() for k, v in self.MetVars['sic'].items()}
+    data0 = self.MetData['sic'][Vars['domain']][Vars['varname']]
+    if Vars['validtime'] in data0.keys():
+        data = data0[Vars['validtime']]
+    else:
+        data = None
+    for cf in self.cfs: cf.remove()
+    data, cfs = plot_image(**Vars, ax=self.ax, data=data)
+    data0[Vars['validtime']] = data
+    self.fig.canvas.draw_idle()
+    self.cfs = cfs
+
+
+def shiftVardate(self, var, hrs):
+    dt = datetime.strptime(var.get(), datefmt)
+    dt += timedelta(hours=hrs)
+    var.set(dt.strftime(datefmt))
+    update_plot(self)
+
+
+def setup_tk(self, frame):
+    # Tkinter variables
+    Vars = {'domain': tk.StringVar(value=sic_domains[0]),
+            'varname': tk.StringVar(value=sic_varnames[0]),
+            'validtime': tk.StringVar(value=today().strftime(datefmt))}
+    
+    # Create frames for four rows
+    frames = []
+    for i in range(2):
+        frames.append(tk.Frame(frame))
+        frames[-1].pack(fill=tk.X)
+        
+    # Row 1: Select domain and varname from dropdown menus
+    widths = {'domain': 2*self.w10, 'varname': 2*self.w10}
+    for key in ['domain', 'varname']:
+        tk.Label(frames[0], text=key.capitalize(), width=self.w10, anchor='e').\
+            pack(side=tk.LEFT, **self.pads)
+        Box = ttk.Combobox(frames[0], width=widths[key], textvariable=Vars[key])
+        Box.pack(side=tk.LEFT, **self.pads)
+        Box.bind('<<ComboboxSelected>>', partial(update_plot, self, key))
+        Box['values'] = globals()['sic_'+key+'s']
+        
+    # Row 2: Set validtime
+    tk.Label(frames[1], text="VALID", width=self.w10, anchor='e').\
+        pack(side=tk.LEFT, **self.pads)
+    Entry = tk.Entry(frames[1], textvariable=Vars['validtime'],
+                     bg='white', width=2*self.w10)
+    Entry.bind('<Return>', partial(update_plot, self))
+    Entry.pack(side=tk.LEFT, **self.pads)
+    for shift in [-24, 24]:
+        tk.Button(frames[1], text='{0:+d}'.format(shift),
+                  command=partial(shiftVardate, self, Vars['validtime'], hrs=shift)).\
+        pack(side=tk.LEFT, **self.pads)
+
+    # Entries specifies entries in harvest GUI. Needs to match inputs to
+    # harvest_date function
+    entries = {'domain': Vars['domain'],
+               'validtime': Vars['validtime']}
+    com = partial(harvest_gui, entries, 'Retrieve SIC images',
+                  harvest_date)
+    tk.Button(frames[1], command=com, text='Retrieve', width=self.w10).\
+        pack(side=tk.LEFT, **self.pads)
+        
+    self.MetVars['sic'] = Vars
+    self.MetData['sic'] = {domain: {varname: {} for varname in sic_varnames}
+                          for domain in sic_domains}
