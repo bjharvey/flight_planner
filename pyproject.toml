@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "flight_planner"
 version = "0.0.1"
-dependencies = ["numpy>=1.26"]
+dependencies = []
 requires-python = ">=3.11"
 authors = [
   {name = "Ben Harvey", email = "ben.harvey@ncas.ac.uk"},
