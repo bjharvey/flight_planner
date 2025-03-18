@@ -42,7 +42,7 @@ from .user_config import (default_projection, initial_extent, datefmt,
 # Import met modules based on the met_options selected in user_config
 met_mods = {}
 for met_option in met_options:
-    met_mods[met_option] = importlib.import_module(met_option+'_images')
+    met_mods[met_option] = importlib.import_module('images_'+met_option)
 
 wplock = 10   # lock to airports and other waypoints if witihin wplock km
 debug = False # print messages when executing canvas update events
@@ -86,7 +86,7 @@ class PlannerGUI(tk.Tk):
         pads = {'padx': 5, 'pady': 5}
         fontsize = int(15 * self.screen_width / base_width)
         self.option_add('*font', 'ubuntu '+str(fontsize))
-        # Store for use in *_images.py routines
+        # Store for use in images_*.py routines
         self.pads, self.w6, self.w10 = pads, w6, w10
         
         # Set up left and right hand frames
