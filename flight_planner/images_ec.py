@@ -11,9 +11,9 @@ import webbrowser
 import tkinter as tk
 from tkinter import ttk
 
-from user_config import (datefmt, ec_domains, ec_varnames,
+from .user_config import (datefmt, ec_domains, ec_varnames,
                          ec_projections)
-from image_utils import harvest_gui, cutout_map, today, set_plotdir
+from .image_utils import harvest_gui, cutout_map, today, set_plotdir
 
 
 
