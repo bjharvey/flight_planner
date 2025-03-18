@@ -33,8 +33,8 @@ import cartopy.geodesic as cgeodesic
 from cartopy.io.img_tiles import GoogleTiles
 import shapely
 
-import flightdef
-from user_config import (default_projection, initial_extent, datefmt,
+from . import flightdef
+from .user_config import (default_projection, initial_extent, datefmt,
                          aircrafts, legtype_spds, legtype_cols,
                          airports, airport_isochrones, fir_boundaries,
                          grid1, grid2, met_options)

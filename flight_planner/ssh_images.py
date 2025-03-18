@@ -9,9 +9,9 @@ from functools import partial
 import tkinter as tk
 from tkinter import ttk
 
-from user_config import (datefmt, ssh_domains, ssh_varnames,
+from .user_config import (datefmt, ssh_domains, ssh_varnames,
                          ssh_projections)
-from image_utils import harvest_gui, cutout_map, today, set_plotdir
+from .image_utils import harvest_gui, cutout_map, today, set_plotdir
 
 
 

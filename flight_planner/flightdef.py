@@ -9,8 +9,8 @@ import cartopy.geodesic as cgeodesic
 from docx import Document, shared
 import gpxpy, gpxpy.gpx
 
-from user_config import airports # Needed to lock WPs to nearby airports
-from user_config import aircrafts, legtype_spds # Needed for setting spds at load
+from .user_config import airports # Needed to lock WPs to nearby airports
+from .user_config import aircrafts, legtype_spds # Needed for setting spds at load
 
 # Set default directory fddir for saving flight defs, allowing for frozen build
 if getattr(sys, 'frozen', False):

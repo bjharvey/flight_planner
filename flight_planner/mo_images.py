@@ -12,11 +12,11 @@ import cartopy.feature as cfeature
 import tkinter as tk
 from tkinter import ttk
 
-from user_config import (datefmt,
+from .user_config import (datefmt,
                          mo_models, mo_domains, mo_varnames,
                          mo_campaign, mo_figname_templates,
                          mo_projections, mo_xsecs)
-from image_utils import harvest_gui, cutout_map, today, set_plotdir
+from .image_utils import harvest_gui, cutout_map, today, set_plotdir
 
 
 def get_image(campaign=None, model=None, domain=None, var=None,
