@@ -13,14 +13,6 @@ from .user_config import airports # Needed to lock WPs to nearby airports
 from .user_config import aircrafts, legtype_spds # Needed for setting spds at load
 
 # Set default directory fddir for saving flight defs, allowing for frozen build
-if getattr(sys, 'frozen', False):
-    application_path = os.path.dirname(sys.executable)
-else:
-    application_path = os.path.dirname(__file__)
-fddir = os.path.join(application_path, 'data', 'flight_defs')
-print('Setting FlightDef directory: {}'.format(fddir))
-if not os.path.exists(fddir):
-    os.makedirs(fddir, exist_ok=True)
 
 class WayPoint(object):
     """A single position.
@@ -131,11 +123,20 @@ class FlightDef(object):
     """
 
     def __init__(self, waypoints=[], name='no_name', aircraft=None,
-                 legtype_spds={'transit': 100}):
+                 legtype_spds={'transit': 100}, datapath=os.getcwd()):
         self.waypoints = waypoints
         self.name = name
         self.aircraft = aircraft
         self.legtype_spds = legtype_spds
+        self.set_fddir(datapath)
+
+    def set_fddir(self, datapath):
+        self.fddir = os.path.join(datapath, 'flight_defs')
+        if os.path.exists(self.fddir) is False:
+            print('\nCreating flight def directory:\n{}'.format(self.fddir))
+            os.makedirs(self.fddir, exist_ok=True)
+        else:
+            print('Setting flight def directory: {}'.format(self.fddir))
 
     def __repr__(self):
         """Data dump for writing save file"""
@@ -197,11 +198,6 @@ class FlightDef(object):
         """Return a list of WayPoint pairs defining each leg"""
         return [(self.waypoints[i], self.waypoints[i+1])
                 for i in range(len(self.waypoints) - 1)]
-    
-    def fddir(self):
-        fddirsub = os.path.join(fddir, self.name)
-        os.makedirs(fddirsub, exist_ok=True)
-        return fddirsub
 
     # Calculations using track definition
     def total_summary(self):
@@ -239,7 +235,7 @@ class FlightDef(object):
     # Save functions
     def savedat(self, fn=None):
         """Save FlightDef as txt file for reloading later with loaddat"""
-        if fn is None: fn = os.path.join(self.fddir(), self.name+'.dat')
+        if fn is None: fn = os.path.join(self.fddir, self.name+'.dat')
         print('\nSaving flight def to file: {}'.format(fn))
         with open(fn, 'w') as f:
             print(self.__repr__())
@@ -247,7 +243,7 @@ class FlightDef(object):
         
     def savetxt(self, fn=None):
         """Save FlightDef as txt file that is nice to read"""
-        if fn is None: fn = os.path.join(self.fddir(), self.name+'.txt')
+        if fn is None: fn = os.path.join(self.fddir, self.name+'.txt')
         print('\nExporting readable flight def to file: {}'.format(fn))
         with open(fn, 'w') as f:
             print(self.__str__())
@@ -255,7 +251,7 @@ class FlightDef(object):
             
     def savegpx(self, fn=None):
         """Save FlightDef as gpx file that can be imported to windy"""
-        if fn is None: fn = os.path.join(self.fddir(), self.name+'.gpx')
+        if fn is None: fn = os.path.join(self.fddir, self.name+'.gpx')
         print('\nExporting GPX flight def file: {}'.format(fn))
         with open(fn, 'w') as f:
             print(self.print_gpx())
@@ -263,7 +259,7 @@ class FlightDef(object):
         
     def savecsv(self, fn=None):
         """Save FlightDef as CSV file formatted for foreflight"""
-        if fn is None: fn = os.path.join(self.fddir(), self.name+'.csv')
+        if fn is None: fn = os.path.join(self.fddir, self.name+'.csv')
         print('\nExporting ForeFlight file: {}'.format(fn))
         with open(fn, 'w') as f:
             print('WAYPOINT,DESCRIPTION,LATITUDE,LONGITUDE')
@@ -274,7 +270,7 @@ class FlightDef(object):
             
     def savedoc(self, fn=None, fnfig=None):
         """Create Word document for flight sortie"""
-        if fn is None: fn = os.path.join(self.fddir(), self.name+'.docx')
+        if fn is None: fn = os.path.join(self.fddir, self.name+'.docx')
         f = Document()
         style = f.styles['Normal']
         font = style.font
@@ -337,11 +333,6 @@ class FlightDef(object):
     
     
 # Load functions
-def loaddat_byname(name):
-    """Wrapper for loaddat using name as filename"""
-    fn = os.path.join(fddir, name, '{}.dat'.format(name))
-    return loaddat(fn)
-
 def loaddat(fn):
     """Load FlightDef from dat file"""
     print('\nLoading flight def file: {}'.format(fn))
@@ -351,9 +342,11 @@ def loaddat(fn):
         for line in f.readlines():
             next_waypoint = WayPoint_from_repr(line.split('\n')[0])
             waypoints.append(next_waypoint)
+    datapath = os.path.dirname(fn).split('flight_defs')[0]
     new_flightdef = FlightDef(waypoints=waypoints, name=name,
                               aircraft=aircrafts[0],
-                              legtype_spds=legtype_spds[aircrafts[0]])
+                              legtype_spds=legtype_spds[aircrafts[0]],
+                              datapath=datapath)
     print(new_flightdef)
     return new_flightdef
 
@@ -364,9 +357,11 @@ def loadgpx(fn):
     lons = [Point.longitude for Point in gpx.tracks[0].segments[0].points]
     lats = [Point.latitude for Point in gpx.tracks[0].segments[0].points]
     waypoints = [WayPoint(lon, lat) for lon, lat in zip(lons, lats)]
+    datapath = os.path.dirname(fn).split('flight_defs')[0]
     new_flightdef = FlightDef(waypoints=waypoints, name='MMDDa',
                               aircraft=aircrafts[0],
-                              legtype_spds=legtype_spds[aircrafts[0]])
+                              legtype_spds=legtype_spds[aircrafts[0]],
+                              datapath=datapath)
     print(new_flightdef)
     return new_flightdef
 

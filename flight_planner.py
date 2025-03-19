@@ -16,6 +16,7 @@ To do:
     - Ensure met_images codes are as similar as possible
 """
 
+import os
 import numpy as np
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext, filedialog
@@ -33,16 +34,16 @@ import cartopy.geodesic as cgeodesic
 from cartopy.io.img_tiles import GoogleTiles
 import shapely
 
-from . import flightdef
-from .user_config import (default_projection, initial_extent, datefmt,
-                         aircrafts, legtype_spds, legtype_cols,
-                         airports, airport_isochrones, fir_boundaries,
-                         grid1, grid2, met_options)
+from src import flightdef
+from src.user_config import (default_projection, initial_extent, datefmt,
+                             aircrafts, legtype_spds, legtype_cols,
+                             airports, airport_isochrones, fir_boundaries,
+                             grid1, grid2, met_options)
 
 # Import met modules based on the met_options selected in user_config
 met_mods = {}
 for met_option in met_options:
-    met_mods[met_option] = importlib.import_module('.images_'+met_option, 'flight_planner')
+    met_mods[met_option] = importlib.import_module('src.images_' + met_option, 'flight_planner')
 
 wplock = 10   # lock to airports and other waypoints if witihin wplock km
 debug = False # print messages when executing canvas update events
@@ -53,6 +54,9 @@ class PlannerGUI(tk.Tk):
 
     def __init__(self):
         super().__init__()
+
+        # Get path from user for data
+        self.set_datapath()
         
         # Detect screen size and set tk window size as fraction of screen
         self.screen_width = self.winfo_screenwidth()
@@ -66,7 +70,7 @@ class PlannerGUI(tk.Tk):
         # Initiate empty flight definition
         self.flightdef = flightdef.FlightDef(
             waypoints=[], name='MMDDa', aircraft=aircrafts[0],
-            legtype_spds=legtype_spds[aircrafts[0]])
+            legtype_spds=legtype_spds[aircrafts[0]], datapath=self.datapath)
 
         # Setup tk widgets
         self.setup_tk()
@@ -569,7 +573,7 @@ class PlannerGUI(tk.Tk):
 
     def set_default_filename(self):
         """Set the default filename for the matplotlib save image button"""
-        mpl.rcParams['savefig.directory'] = self.flightdef.fddir()
+        mpl.rcParams['savefig.directory'] = self.flightdef.fddir
         fn = self.flightdef.name + '_' + self.metVar.get()
         for k, MetVar in self.MetVars[self.metVar.get()].items():
             v = MetVar.get()
@@ -786,7 +790,7 @@ class PlannerGUI(tk.Tk):
     def save(self, event=None):
         """Called from save button"""
         fn = filedialog.asksaveasfilename(defaultextension=".dat",
-                                          initialdir=self.flightdef.fddir(),
+                                          initialdir=self.flightdef.fddir,
                                           initialfile=self.flightdef.name,
                                           filetypes = [('.dat', '*.dat')])
         self.flightdef.savedat(fn)
@@ -804,7 +808,7 @@ class PlannerGUI(tk.Tk):
         """Called from load button"""
         fn = filedialog.askopenfilename(
             title = "Select a File", filetypes = [("FlightDefs", "*.dat *.gpx")],
-            initialdir=flightdef.fddir)
+            initialdir=self.flightdef.fddir)
         if fn[-3:] == 'dat': self.flightdef = flightdef.loaddat(fn)
         if fn[-3:] == 'gpx': self.flightdef = flightdef.loadgpx(fn)
         self.update_display()
@@ -818,12 +822,20 @@ class PlannerGUI(tk.Tk):
         webbrowser.open_new(url)
         
     def help(self, event=None):
-        messagebox.showinfo('To Do!')
-            #'Flight Planner Instructions',
-            #'Edit WayPoints by clicking on map:\n'\
-            #'    LEFT = append\nMIDDLE = insert\nRIGHT = delete\nDRAG = move'\
-            #'\n\nOr edit text and select \'Update FlightDef\'. Format:\n'\
-            #'    Name, Lon, Lat, Alt [ft], legtype, description')
+        messagebox.showinfo(
+            """
+            Instructions
+            Edit WayPoints by clicking on map:
+                LEFT = append\nMIDDLE = insert\nRIGHT = delete\nDRAG = move
+            Or edit text and select Update FlightDef:
+                Name, Lon, Lat, Alt [ft], legtype, description
+            """
+            )
+
+    def set_datapath(self):
+        # Prompt user to select file location
+        self.datapath = filedialog.askdirectory(initialdir=os.getcwd(),
+                                                title='Enter location for saving flight defs and met images...')
 
 if __name__ == '__main__':
     p = PlannerGUI()

@@ -17,7 +17,7 @@ from .image_utils import harvest_gui, cutout_map, today, set_plotdir
 
 
 
-def get_image(domain=None, var=None, fcsttime=None, validtime=None,
+def get_image(datapath, domain=None, var=None, fcsttime=None, validtime=None,
               just_make_filename=False, check_exists=True):
     """Retrieve a single image from EC charts webpage.
 
@@ -27,7 +27,7 @@ def get_image(domain=None, var=None, fcsttime=None, validtime=None,
     """
     leadhours = int(round((validtime - fcsttime).total_seconds() / 3600))
     figname = '{}_T{}.png'.format(var, leadhours)
-    plotdir = set_plotdir('ec')
+    plotdir = set_plotdir(datapath, 'ec')
     localdir = os.path.join(plotdir, domain, fcsttime.strftime(datefmt))
     localfigname = os.path.join(localdir, figname)
   
@@ -64,7 +64,7 @@ def get_image(domain=None, var=None, fcsttime=None, validtime=None,
     return localfigname
 
 
-def harvest_date(domain, fcsttime,
+def harvest_date(datapath, domain, fcsttime,
                  frequency=1, ndays=5,
                  stop=None, finish=None):
     """Retrieve all plots for one domain/fcsttime."""
@@ -76,7 +76,7 @@ def harvest_date(domain, fcsttime,
         print('\nEC_HARVEST_DATE({}): Retrieving {} {}\n'.\
               format(fcsttime, domain, var))
         for validtime in [fcsttime + timedelta(hours=i) for i in leadtimes]:
-            get_image(domain, var, fcsttime, validtime)
+            get_image(datapath, domain, var, fcsttime, validtime)
             if stop is not None:
                 if stop():
                     print('\nEC_HARVEST_DATE({}): Stopped'.format(fcsttime))
@@ -86,7 +86,7 @@ def harvest_date(domain, fcsttime,
     print('\nEC_HARVEST_DATE({}): Finished'.format(fcsttime))
 
 
-def plot_image(domain, varname, fcsttime, validtime, ax, data=None):
+def plot_image(datapath, domain, varname, fcsttime, validtime, ax, data=None):
 
     ds = ec_projections[domain]
     if type(fcsttime) == str: fcsttime = datetime.strptime(fcsttime, datefmt)
@@ -97,7 +97,7 @@ def plot_image(domain, varname, fcsttime, validtime, ax, data=None):
 
     # Load image if not provided in data
     if data is None:
-        figname = get_image(domain, varname, fcsttime, validtime,
+        figname = get_image(datapath, domain, varname, fcsttime, validtime,
                             just_make_filename=True)
         if figname is None:
             ax.set_title('EC: {}\n<no image found>'.format(domain), loc='left')
@@ -163,7 +163,7 @@ def update_plot(self, key=None, dummy=None):
     else:
         data = None
     for cf in self.cfs: cf.remove()
-    data, cfs = plot_image(**Vars, ax=self.ax, data=data)
+    data, cfs = plot_image(self.datapath, **Vars, ax=self.ax, data=data)
     data0[Vars['fcsttime'], Vars['validtime']] = data
     self.fig.canvas.draw_idle()
     self.cfs = cfs
@@ -216,7 +216,7 @@ def setup_tk(self, frame):
                'fcsttime': Vars['fcsttime'],
                'frequency': '1', 'ndays': '5'}
     com = partial(harvest_gui, entries, 'Retrieve EC images',
-                  harvest_date)
+                  partial(harvest_date, self.datapath))
     tk.Button(frames[1], command=com, text='Retrieve', width=self.w10).\
         pack(side=tk.LEFT, **self.pads)
         

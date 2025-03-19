@@ -20,8 +20,19 @@ Clone the repository:
 
 Run the application:
 ```
+cd flight_planner
 python flight_planner
 ```
+This allows for quick and easy tweaking of the code.
+
+Alternatively, install the application:
+```
+cd flight_planner
+python setup.py install
+flight_planner
+```
+This installs a fixed version of the code in your site-packages directory
+and checks for and installs all required dependencies.
 
 ## Requirements
 

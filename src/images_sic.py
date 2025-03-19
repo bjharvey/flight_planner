@@ -13,7 +13,7 @@ from .image_utils import harvest_gui, cutout_map, today, set_plotdir
 
 
 
-def get_image(domain=None, var=None, validtime=None,
+def get_image(datapath, domain=None, var=None, validtime=None,
               just_make_filename=False, check_exists=True):
     """Retrieve a single image.
 
@@ -22,7 +22,7 @@ def get_image(domain=None, var=None, validtime=None,
     Plots are saved as <plotdir>/<var>_MonD.png
     """
     figname = '{}_AMSR2_{}.png'.format(domain, var)
-    plotdir = set_plotdir('sic')
+    plotdir = set_plotdir(datapath, 'sic')
     localdir = os.path.join(plotdir, domain, validtime.strftime(datefmt))
     localfigname = os.path.join(localdir, figname)
                 
@@ -57,7 +57,7 @@ def get_image(domain=None, var=None, validtime=None,
     return localfigname
 
 
-def harvest_date(domain, validtime,
+def harvest_date(datapath, domain, validtime,
                  stop=None, finish=None):
     """Retrieve all plots for one domain/validtime."""
     if type(validtime) == str: validtime = datetime.strptime(validtime, datefmt)
@@ -65,7 +65,7 @@ def harvest_date(domain, validtime,
     for var in sic_varnames:
         print('\nSIC_HARVEST_DATE({}): Retrieving {} {}\n'.\
               format(validtime, domain, var))
-        get_image(domain, var, validtime)
+        get_image(datapath, domain, var, validtime)
         if stop is not None:
             if stop():
                 print('\nSIC_HARVEST_DATE({}): Stopped'.format(validtime))
@@ -75,7 +75,7 @@ def harvest_date(domain, validtime,
     print('\nSIC_HARVEST_DATE({}): Finished'.format(validtime))
 
 
-def plot_image(domain, varname, validtime, ax, data=None):
+def plot_image(datapath, domain, varname, validtime, ax, data=None):
 
     ds = sic_projections[domain]
     if type(validtime) == str: validtime = datetime.strptime(validtime, datefmt)
@@ -84,7 +84,7 @@ def plot_image(domain, varname, validtime, ax, data=None):
 
     # Load image if not provided in data
     if data is None:
-        figname = get_image(domain, varname, validtime,
+        figname = get_image(datapath, domain, varname, validtime,
                             just_make_filename=True)
         if figname is None:
             ax.set_title('SIC: {}\n<no image found>'.format(domain), loc='left')
@@ -149,7 +149,7 @@ def update_plot(self, key=None, dummy=None):
     else:
         data = None
     for cf in self.cfs: cf.remove()
-    data, cfs = plot_image(**Vars, ax=self.ax, data=data)
+    data, cfs = plot_image(self.datapath, **Vars, ax=self.ax, data=data)
     data0[Vars['validtime']] = data
     self.fig.canvas.draw_idle()
     self.cfs = cfs
@@ -201,7 +201,7 @@ def setup_tk(self, frame):
     entries = {'domain': Vars['domain'],
                'validtime': Vars['validtime']}
     com = partial(harvest_gui, entries, 'Retrieve SIC images',
-                  harvest_date)
+                  partial(harvest_date, self.datapath))
     tk.Button(frames[1], command=com, text='Retrieve', width=self.w10).\
         pack(side=tk.LEFT, **self.pads)
         

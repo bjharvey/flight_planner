@@ -19,7 +19,7 @@ from .user_config import (datefmt,
 from .image_utils import harvest_gui, cutout_map, today, set_plotdir
 
 
-def get_image(campaign=None, model=None, domain=None, var=None,
+def get_image(datapath, campaign=None, model=None, domain=None, var=None,
               fcsttime=None, validtime=None,
               user=None, passwd=None,
               just_make_filename=False, check_exists=True):
@@ -36,7 +36,7 @@ def get_image(campaign=None, model=None, domain=None, var=None,
     figname = mo_figname_templates[model].\
         format(var, validtime.strftime(datefmt), leadhours, domain)
     url = url0 + url1 + figname
-    plotdir = set_plotdir('mo')
+    plotdir = set_plotdir(datapath, 'mo')
     localdir = os.path.join(plotdir, mo_campaign, model,
                             fcsttime.strftime(datefmt))
     localfigname = os.path.join(localdir, figname)
@@ -64,7 +64,7 @@ def get_image(campaign=None, model=None, domain=None, var=None,
     return localfigname
 
 
-def harvest_date(model, domain, fcsttime,
+def harvest_date(datapath, model, domain, fcsttime,
                  frequency=1, ndays=5, user='', passwd='',
                  stop=None, finish=None):
     """Retrieve all images for one model/domain/fcsttime."""
@@ -76,7 +76,7 @@ def harvest_date(model, domain, fcsttime,
         print('MO_HARVEST_DATE({}): Retrieving {}/{} {}\n'.\
               format(fcsttime, model, domain, var))
         for validtime in [fcsttime + timedelta(hours=i) for i in leadtimes]:
-            get_image(mo_campaign, model, domain, var, fcsttime, validtime,
+            get_image(datapath, mo_campaign, model, domain, var, fcsttime, validtime,
                       user=user, passwd=passwd)
             if stop is not None:
                 if stop():
@@ -87,7 +87,7 @@ def harvest_date(model, domain, fcsttime,
     print('MO_HARVEST_DATE({}): Finished'.format(fcsttime))
 
 
-def plot_image(model, domain, varname, fcsttime, validtime, ax, data=None):
+def plot_image(datapath, model, domain, varname, fcsttime, validtime, ax, data=None):
     """Get a single image and display (if not provided in data) in axes ax."""
     print(f'MO_PLOT_IMAGE({model}, {domain}, {varname}, {fcsttime}, {validtime})')
     ds = mo_projections[domain]
@@ -99,7 +99,7 @@ def plot_image(model, domain, varname, fcsttime, validtime, ax, data=None):
     # Load image if not provided in data
     if data is None:
         figname = get_image(
-            mo_campaign, model, domain, varname, fcsttime, validtime,
+            datapath, mo_campaign, model, domain, varname, fcsttime, validtime,
             just_make_filename=True)
         if figname is None:
             ax.set_title('MO: {}/{}/{}\n<no image found>'.\
@@ -194,7 +194,7 @@ def update_plot(self, key=None, dummy=None):
     else:
         data = None
     for cf in self.cfs: cf.remove()
-    data, cfs = plot_image(**Vars, ax=self.ax, data=data)
+    data, cfs = plot_image(self.datapath, **Vars, ax=self.ax, data=data)
     data0[Vars['fcsttime'], Vars['validtime']] = data
     self.fig.canvas.draw_idle()
     self.cfs = cfs
@@ -249,7 +249,7 @@ def setup_tk(self, frame):
                'frequency': '1', 'ndays': '5', 'user': '', 'password': ''}
     com = partial(harvest_gui, entries,
                   'Retrieve MO images for campaign {}'.\
-                      format(mo_campaign.upper()), harvest_date)
+                      format(mo_campaign.upper()), partial(harvest_date, self.datapath))
     tk.Button(frames[1], command=com, text='Retrieve', width=self.w10).\
         pack(side=tk.LEFT, **self.pads)
         

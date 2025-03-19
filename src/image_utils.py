@@ -10,15 +10,11 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def set_plotdir(tag):
-    """Set directory for saving plots allowing for frozen build."""
-    if getattr(sys, 'frozen', False):
-        application_path = os.path.dirname(sys.executable)
-    else:
-        application_path = os.path.dirname(__file__)
-    plotdir = os.path.join(application_path, 'data', tag+'_images')
+def set_plotdir(datapath, tag):
+    """Set directory for saving plots."""
+    plotdir = os.path.join(datapath, tag+'_images')
+    print('Setting {} plot directory: {}'.format(tag.upper(), plotdir))
     if not os.path.exists(plotdir):
-        print('Setting {} plot directory: {}'.format(tag.upper(), plotdir))
         os.makedirs(plotdir, exist_ok=True)
     return plotdir
     
