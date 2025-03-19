@@ -34,10 +34,6 @@ flight_planner
 This installs a fixed version of the code in your site-packages directory
 and checks for and installs all required dependencies.
 
-## Requirements
-
-- TBC (add requirements.txt?)
-
 ## Contributing
 
 Contributions are welcome! Please follow these steps:
