@@ -21,7 +21,7 @@ git clone https://github.com/bjharvey/flight_planner.git
 Run the application:
 ```
 cd flight_planner
-python flight_planner
+python flight_planner.py
 ```
 This allows for quick and easy tweaking of the code.
 
