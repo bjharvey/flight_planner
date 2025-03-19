@@ -45,7 +45,7 @@ from .user_config import (default_projection, initial_extent, datefmt,
 # Import met modules based on the met_options selected in user_config
 met_mods = {}
 for met_option in met_options:
-    met_mods[met_option] = importlib.import_module('src.images_' + met_option, 'flight_planner')
+    met_mods[met_option] = importlib.import_module('.images_' + met_option, 'flight_planner')
 
 wplock = 10   # lock to airports and other waypoints if witihin wplock km
 debug = False # print messages when executing canvas update events
