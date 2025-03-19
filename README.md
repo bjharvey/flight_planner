@@ -12,9 +12,9 @@ Flight planner GUI for interactive click-and-drag flight planning.
 ## Installation
 
 Clone the repository:
-    ```
-    git clone https://github.com/bjharvey/flight_planner.git
-    ```
+```
+git clone https://github.com/bjharvey/flight_planner.git
+```
 
 ## Usage
 
