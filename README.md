@@ -22,9 +22,10 @@ git clone https://github.com/bjharvey/flight_planner.git
 Run the application:
 ```
 cd flight_planner
-python flight_planner.py
+python -m flight_planner.gui
 ```
 This allows for quick and easy tweaking of the code.
+
 It requires correct packages to be installed, which can be checked with
 ```
 pip install -r requirements.txt
