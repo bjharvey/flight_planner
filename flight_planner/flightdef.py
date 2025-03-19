@@ -131,7 +131,7 @@ class FlightDef(object):
         self.set_fddir(datapath)
 
     def set_fddir(self, datapath):
-        self.fddir = os.path.join(datapath, 'flight_defs')
+        self.fddir = os.path.join(datapath, 'data/flight_defs')
         if os.path.exists(self.fddir) is False:
             print('\nCreating flight def directory:\n{}'.format(self.fddir))
             os.makedirs(self.fddir, exist_ok=True)
@@ -342,7 +342,7 @@ def loaddat(fn):
         for line in f.readlines():
             next_waypoint = WayPoint_from_repr(line.split('\n')[0])
             waypoints.append(next_waypoint)
-    datapath = os.path.dirname(fn).split('flight_defs')[0]
+    datapath = os.path.dirname(fn).split('data/flight_defs')[0]
     new_flightdef = FlightDef(waypoints=waypoints, name=name,
                               aircraft=aircrafts[0],
                               legtype_spds=legtype_spds[aircrafts[0]],
@@ -357,7 +357,7 @@ def loadgpx(fn):
     lons = [Point.longitude for Point in gpx.tracks[0].segments[0].points]
     lats = [Point.latitude for Point in gpx.tracks[0].segments[0].points]
     waypoints = [WayPoint(lon, lat) for lon, lat in zip(lons, lats)]
-    datapath = os.path.dirname(fn).split('flight_defs')[0]
+    datapath = os.path.dirname(fn).split('data/flight_defs')[0]
     new_flightdef = FlightDef(waypoints=waypoints, name='MMDDa',
                               aircraft=aircrafts[0],
                               legtype_spds=legtype_spds[aircrafts[0]],

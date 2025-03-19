@@ -3,3 +3,9 @@
 
 # Ignore __pycache__ directories
 **__pycache__/
+
+# Ignore saved data from GUI (if put here)
+data/
+
+# Ignore vscode config
+.vscode/

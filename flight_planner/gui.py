@@ -788,11 +788,11 @@ class PlannerGUI(tk.Tk):
         self.flightdef.savecsv(fn.split('.')[0] + '.csv')
         self.flightdef.savegpx(fn.split('.')[0] + '.gpx')
         # Save current image and include in doc
-        fnfig = fn.split('.')[0] + '_for_docx.png'
+        fnfig = fn.split('.')[0] + '_fig_for_sortie.png'
         print('\nSAVE: Saving current figure for use in savedoc: {}'.\
               format(fnfig))
         self.fig.savefig(fnfig, dpi=200)
-        self.flightdef.savedoc(fn.split('.')[0] + '.docx', fnfig)
+        self.flightdef.savedoc(fn.split('.')[0] + '_sortie.docx', fnfig)
         
     def load(self, event=None):
         """Called from load button"""
@@ -813,13 +813,15 @@ class PlannerGUI(tk.Tk):
         
     def help(self, event=None):
         messagebox.showinfo(
-            """
-            Instructions
-            Edit WayPoints by clicking on map:
-                LEFT = append\nMIDDLE = insert\nRIGHT = delete\nDRAG = move
-            Or edit text and select Update FlightDef:
-                Name, Lon, Lat, Alt [ft], legtype, description
-            """
+            title='Instructions',
+            message=\
+            'Edit WayPoints by clicking on map:\n'\
+            '    LEFT = append\n'\
+            '    MIDDLE = insert\n'\
+            '    RIGHT = delete\n'\
+            '    DRAG = move\n'\
+            'Or, edit text and select \'Update FlightDef\'. Format:\n'\
+            '    Name, Lon, Lat, Alt [ft], legtype, description'
             )
 
 def main():

@@ -12,7 +12,7 @@ from tkinter import ttk
 
 def set_plotdir(datapath, tag):
     """Set directory for saving plots."""
-    plotdir = os.path.join(datapath, tag+'_images')
+    plotdir = os.path.join(datapath, 'data', tag+'_images')
     print('Setting {} plot directory: {}'.format(tag.upper(), plotdir))
     if not os.path.exists(plotdir):
         os.makedirs(plotdir, exist_ok=True)
