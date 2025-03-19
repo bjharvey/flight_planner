@@ -5,8 +5,8 @@ Flight planner GUI for interactive click-and-drag flight planning.
 ## Features
 
 - **Design flight tracks**: Add, move and edit waypoints on a map.
-- **Forecast Images**: Download and overlay forecast charts from several sources.
-- **Export flight track**: Save flight track as CSV, GPX, and a formatted word doc.
+- **Overlay Forecast Images**: Download and overlay forecast charts from several sources.
+- **Export flight track**: Save flight track as CSV, GPX, and a formatted sortie brief.
 - **Load into Windy.com**: Load the flight track directly into Windy.com.
 
 ## Installation
