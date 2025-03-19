@@ -34,11 +34,13 @@ import cartopy.geodesic as cgeodesic
 from cartopy.io.img_tiles import GoogleTiles
 import shapely
 
-from src import flightdef
-from src.user_config import (default_projection, initial_extent, datefmt,
-                             aircrafts, legtype_spds, legtype_cols,
-                             airports, airport_isochrones, fir_boundaries,
-                             grid1, grid2, met_options)
+from .flightdef import (FlightDef, is_near_airport, is_near_other_waypoints,
+                        nm2km, km2nm, WayPoint_from_repr, locked_WayPoint,
+                        greatcircle, loaddat, loadgpx)
+from .user_config import (default_projection, initial_extent, datefmt,
+                          aircrafts, legtype_spds, legtype_cols,
+                          airports, airport_isochrones, fir_boundaries,
+                          grid1, grid2, met_options)
 
 # Import met modules based on the met_options selected in user_config
 met_mods = {}
@@ -68,7 +70,7 @@ class PlannerGUI(tk.Tk):
         self.title("Flight Planner")
 
         # Initiate empty flight definition
-        self.flightdef = flightdef.FlightDef(
+        self.flightdef = FlightDef(
             waypoints=[], name='MMDDa', aircraft=aircrafts[0],
             legtype_spds=legtype_spds[aircrafts[0]], datapath=self.datapath)
 
@@ -398,7 +400,7 @@ class PlannerGUI(tk.Tk):
                     r = h * self.flightdef.legtype_spds['transit']
                     n = 180
                     circle_points = cgeodesic.Geodesic().circle(
-                        lon=pt[0], lat=pt[1], radius=flightdef.nm2km(r)*1000,
+                        lon=pt[0], lat=pt[1], radius=nm2km(r)*1000,
                         n_samples=n, endpoint=False)
                     geom = shapely.geometry.Polygon(circle_points)
                     ao.append(self.ax.add_geometries((geom,), crs=pc,
@@ -453,7 +455,7 @@ class PlannerGUI(tk.Tk):
         self.draw_airports()
         s = self.flightdefST.get(0.0, tk.END).strip().strip('\n')
         if len(s) > 0:
-            self.flightdef.waypoints = [flightdef.WayPoint_from_repr(line)
+            self.flightdef.waypoints = [WayPoint_from_repr(line)
                                         for line in s.split('\n')]
         else:
             self.flightdef.waypoints = []
@@ -479,8 +481,8 @@ class PlannerGUI(tk.Tk):
         i = 0
         labs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
         for wpi, wp in enumerate(self.flightdef.waypoints):
-            near_airport = flightdef.is_near_airport(wp, wplock=wplock)
-            near_prev = flightdef.is_near_other_waypoints(
+            near_airport = is_near_airport(wp, wplock=wplock)
+            near_prev = is_near_other_waypoints(
                 wp, self.flightdef.waypoints[:wpi], wplock=wplock/100)
             if near_airport is not None:
                 wp.name = near_airport
@@ -537,7 +539,7 @@ class PlannerGUI(tk.Tk):
         self.dots.set_offsets(
             np.array([self.flightdef.lons(), self.flightdef.lats()]).T)
         if self.tsxvarbn.value_selected == 'Dist [nm]':
-            xvals = np.insert(flightdef.km2nm(
+            xvals = np.insert(km2nm(
                 self.flightdef.total_dist(cumulative=True)), 0, 0)
         elif self.tsxvarbn.value_selected == 'Time [hr]':
             xvals = np.insert(self.flightdef.total_time(cumulative=True), 0, 0)
@@ -602,7 +604,7 @@ class PlannerGUI(tk.Tk):
             if debug: print('passing fig_button_press_callback')
             return
         # Get name ready for any new waypoint
-        near_airport = [flightdef.is_near_airport(wp, wplock=wplock) is not None
+        near_airport = [is_near_airport(wp, wplock=wplock) is not None
                         for wp in self.flightdef.waypoints]
         npts = len(self.flightdef.waypoints) - np.sum(near_airport, dtype=int)
         new_wpname = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[npts] + self.flightdef.name
@@ -613,11 +615,11 @@ class PlannerGUI(tk.Tk):
             if dcontains:
                 i = dinfo['ind'][-1]
                 if event.button == 1:              # Append destination airport
-                    if flightdef.is_near_airport(
+                    if is_near_airport(
                             self.flightdef.waypoints[i], wplock=wplock):
                         alt = self.flightdef.waypoints[-1].alt
                         legtype = self.flightdef.waypoints[-1].legtype
-                        wp = flightdef.locked_WayPoint(
+                        wp = locked_WayPoint(
                             lon, lat, alt, name=new_wpname, legtype=legtype,
                             wplock=wplock)
                         self.flightdef.waypoints.append(wp)
@@ -632,7 +634,7 @@ class PlannerGUI(tk.Tk):
                 else:
                     alt = self.flightdef.waypoints[-1].alt
                     legtype = self.flightdef.waypoints[-1].legtype
-                wp = flightdef.locked_WayPoint(
+                wp = locked_WayPoint(
                     lon, lat, alt, name=new_wpname, legtype=legtype,
                     wplock=wplock)
                 self.flightdef.waypoints.append(wp)
@@ -641,7 +643,7 @@ class PlannerGUI(tk.Tk):
                     prevlegi = linfo['ind'][0]
                     alt = self.flightdef.waypoints[prevlegi].alt
                     legtype = self.flightdef.waypoints[prevlegi].legtype
-                    wp = flightdef.locked_WayPoint(
+                    wp = locked_WayPoint(
                         lon, lat, alt, name=new_wpname,
                         legtype=legtype, wplock=wplock)
                     self.flightdef.waypoints.insert(prevlegi+1, wp)
@@ -662,7 +664,7 @@ class PlannerGUI(tk.Tk):
                     lat = self._interp(i, event.xdata, self.tsxvals,
                                        self.flightdef.lats())
                     alt = event.ydata
-                    wp = flightdef.locked_WayPoint(
+                    wp = locked_WayPoint(
                         lon, lat, alt, name=new_wpname, wplock=wplock)
                     self.flightdef.waypoints.insert(i+1, wp)
             
@@ -723,9 +725,9 @@ class PlannerGUI(tk.Tk):
         if wplock is not None:
             for pt in [wp.pt() for i, wp in enumerate(self.flightdef.waypoints)
                        if i != self.drag_i]:
-                dist = flightdef.greatcircle((lon, lat), (pt[0], pt[1]))
+                dist = greatcircle((lon, lat), (pt[0], pt[1]))
                 if dist < wplock: lon, lat = pt
-        wp = flightdef.locked_WayPoint(
+        wp = locked_WayPoint(
             lon, lat, alt=self.flightdef.waypoints[self.drag_i].alt,
             name=self.flightdef.waypoints[self.drag_i].name,
             desc=self.flightdef.waypoints[self.drag_i].desc,
@@ -755,7 +757,7 @@ class PlannerGUI(tk.Tk):
             ymin, ymax = self.tsax.get_ylim()
             if ymin < event.ydata < ymax:
                 lon, lat = self.flightdef.waypoints[self.drag_i].pt()
-                wp = flightdef.locked_WayPoint(
+                wp = locked_WayPoint(
                     lon, lat, round_alts(event.ydata),
                     name=self.flightdef.waypoints[self.drag_i].name,
                     desc=self.flightdef.waypoints[self.drag_i].desc,
@@ -809,8 +811,8 @@ class PlannerGUI(tk.Tk):
         fn = filedialog.askopenfilename(
             title = "Select a File", filetypes = [("FlightDefs", "*.dat *.gpx")],
             initialdir=self.flightdef.fddir)
-        if fn[-3:] == 'dat': self.flightdef = flightdef.loaddat(fn)
-        if fn[-3:] == 'gpx': self.flightdef = flightdef.loadgpx(fn)
+        if fn[-3:] == 'dat': self.flightdef = loaddat(fn)
+        if fn[-3:] == 'gpx': self.flightdef = loadgpx(fn)
         self.update_display()
         self.set_default_filename()
         

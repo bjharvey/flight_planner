@@ -11,7 +11,7 @@ setup(
     install_requires=parse_requirements('requirements.txt'),
     entry_points={
         'console_scripts': [
-            'flight_planner=flight_planner:main',
+            'flight_planner=flight_planner.gui:main',
         ],
     },
 )
