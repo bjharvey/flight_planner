@@ -1,21 +1,3 @@
-"""
-Flight planner GUI for interactive click-and-drag flight planning.
-
-To make executable, use 'pyinstaller --onefile flight_planner.py' from CMD
-prompt launched from anaconda.
-
-To do:
-    - Seperate out colorbar code (in each images.py file) and use axis.set_position to rearrange axis when
-          colourbar selected, rather than redrawing from scratch (also fixes issue that extent is reset when colourbar added)
-    - Simplify the met_images.py files by putting common code in image_utils.py and specifying metadata requirements for each source with dictionaries.
-    Quick jobs:
-    - Improve cutout_map for EC maps
-    - Add comments
-    - Retain map extents when calling setup_ax
-    - Tidy printed messages (debug and normal)
-    - Ensure met_images codes are as similar as possible
-"""
-
 import os
 import numpy as np
 import tkinter as tk
@@ -52,7 +34,9 @@ debug = False # print messages when executing canvas update events
 
 
 class PlannerGUI(tk.Tk):
-    """An interactive GUI for flight planning."""
+    """
+    Flight planner GUI for interactive click-and-drag flight planning.
+    """
 
     def __init__(self):
         super().__init__()
@@ -79,7 +63,11 @@ class PlannerGUI(tk.Tk):
 
         # Setup matplotlib figure
         self.setup_ax()
-        
+
+    def set_datapath(self):
+        # Prompt user to select file location
+        self.datapath = filedialog.askdirectory(initialdir=os.getcwd(),
+                                                title='Enter location for saving flight defs and met images...')
 
     def setup_tk(self):
         """Setup tkinter window"""
@@ -833,11 +821,6 @@ class PlannerGUI(tk.Tk):
                 Name, Lon, Lat, Alt [ft], legtype, description
             """
             )
-
-    def set_datapath(self):
-        # Prompt user to select file location
-        self.datapath = filedialog.askdirectory(initialdir=os.getcwd(),
-                                                title='Enter location for saving flight defs and met images...')
 
 def main():
     print('Running the flight Planner!')
