@@ -41,9 +41,11 @@ aircrafts = ['FAAM']#, 'MASIN']
 # Must have a transit speed, but other legtypes can also be defined here
 legtype_spds = {
     'MASIN' : {'transit': 135,
-               'science': 120},
+               'science': 120,
+               'special': 100},
     'FAAM' :  {'transit': 270,      # Suggested by Ian
-               'science': 194},
+               'science': 194,
+               'special': 170},
     }
 legtype_cols = {'transit': 'k', 'science': 'r', 'special': 'b'}
 
@@ -144,18 +146,20 @@ met_options = ['mo', 'ec']
     
 # Specify models, domains and varnames to include
 mo_models = ['glm', 'teamx_ral3p2']
-mo_domains = ['TEAMx', 'EtschV', 'InnV']
-mo_varnames = ['RainSnowRates', 'cloud', 'T_1.5m', 'FogFr']
-            #    'WindSpdDir_10m', 'WindGust_10m', 'WindSpdDir_950hPa',
-            #    'WindSpdDir_850hPa', 'WindSpdDir_300hPa',
-            #    'WBPT_950hPa', 'dtheta_950hPa', 'BLD', 'TCW', 'CldBase',
-            #    'Vis_1.5m', 'T_1.5m']
+mo_domains = ['Alps', 'TEAMx', 'EtschV', 'InnV']
+mo_varnames = ['RainSnowRates', 'cloud', 'T_1.5m', 'FogFr',
+               'WindSpdDir_10m', 'SnowAmount',]
+            #   'WindSpdDir_950hPa', 'WindSpdDir_850hPa', 'WindSpdDir_300hPa',
+            #   'WBPT_950hPa', 'dtheta_950hPa', 'BLD', 'TCW', 'CldBase',
+            #   'Vis_1.5m', 'T_1.5m']
 
 # Additional info required
 mo_campaign = 'TEAMx'
 mo_figname_templates = {'glm'         : '{}_oper-glm_{}_T{}_{}.png',
                         'teamx_ral3p2': '{}_teamx_ral3p2_1km_{}_T{}_{}.png'}
-mo_projections = {'TEAMx' : {'proj' : _reduce_threshold(ccrs.PlateCarree()),
+mo_projections = {'Alps' : {'proj' : _reduce_threshold(ccrs.PlateCarree()),
+                            'extents': [4.6, 15.6, 42.6, 49.35]},
+                  'TEAMx' : {'proj' : _reduce_threshold(ccrs.PlateCarree()),
                              'extents': [9.37, 12.93, 45.3, 48.15]},
                   'EtschV': {'proj' : _reduce_threshold(ccrs.PlateCarree()),
                              'extents': [10.28, 12.2, 45.42, 47.08]},

@@ -151,7 +151,7 @@ def contiguous_regions(condition):
 #     return im[rows, cols]
 
 
-def cutout_map(im, get_colbar=False, white_thres=0.99):
+def cutout_map(im, get_colbar=False, white_thres=0.999):
     """
     Trying out new cutout method.
     

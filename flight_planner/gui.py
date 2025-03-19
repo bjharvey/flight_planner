@@ -48,7 +48,7 @@ class PlannerGUI(tk.Tk):
         self.screen_width = self.winfo_screenwidth()
         self.screen_height = self.winfo_screenheight()
         scaled_geom = '{}x{}'.format(int(0.80 * self.screen_width),
-                                     int(0.65 * self.screen_height))
+                                     int(0.6 * self.screen_height))
         print('PlannerGUI: Using geometry {}'.format(scaled_geom))
         self.geometry(scaled_geom)
         self.title("Flight Planner")
@@ -75,8 +75,8 @@ class PlannerGUI(tk.Tk):
         
         # Setup screen dependent widths and fontsize
         base_width = 2736 # Screen width used for testing
-        w10 = int(12 * self.screen_width / base_width)
-        w6 = int(6 * self.screen_width / base_width)
+        w10 = int(16 * self.screen_width / base_width)
+        w6 = int(9 * self.screen_width / base_width)
         pads = {'padx': 5, 'pady': 5}
         fontsize = int(15 * self.screen_width / base_width)
         self.option_add('*font', 'ubuntu '+str(fontsize))

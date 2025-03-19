@@ -11,6 +11,9 @@ Set up to use data sources:
 import numpy as np
 import copy
 import cartopy.crs as ccrs
+
+import matplotlib as mpl
+mpl.rcParams.update({'font.size': 8})
     
 def _reduce_threshold(projin, scale=100):
     # Reduce default _threshold value to ensure lines are plotted smoothly
