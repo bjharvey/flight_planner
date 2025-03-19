@@ -16,20 +16,10 @@ Clone the repository:
 git clone https://github.com/bjharvey/flight_planner.git
 ```
 
-To check if your version is up to date:
-```
-git fetch
-git status -uno
-```
-
-And to update it if it's not:
-```
-git pull origin main
-```
-
 ## Usage
 
 ### Option 1
+
 Run the application:
 ```
 cd flight_planner
@@ -42,7 +32,8 @@ It requires correct packages to be installed, which can be checked with
 pip install -r requirements.txt
 ```
 
-### Option 2:
+### Option 2
+
 Alternatively, install the application:
 ```
 cd flight_planner
@@ -56,6 +47,19 @@ all required dependencies.
 To uninstall:
 ```
 pip uninstall flight_planner
+```
+
+### Updating
+
+To check if your version is up to date:
+```
+git fetch
+git status -uno
+```
+
+And to update it if it's not:
+```
+git pull origin main
 ```
 
 ## Contributing
