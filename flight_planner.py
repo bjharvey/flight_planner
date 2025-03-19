@@ -837,6 +837,10 @@ class PlannerGUI(tk.Tk):
         self.datapath = filedialog.askdirectory(initialdir=os.getcwd(),
                                                 title='Enter location for saving flight defs and met images...')
 
-if __name__ == '__main__':
+def main():
+    print('Running the flight Planner!')
     p = PlannerGUI()
     p.mainloop()
+
+if __name__ == '__main__':
+    main()
