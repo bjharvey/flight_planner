@@ -16,6 +16,11 @@ Clone the repository:
 git clone https://github.com/bjharvey/flight_planner.git
 ```
 
+To update your local version to latest:
+```
+git pull origin main
+```
+
 ## Usage
 
 ### Option 1
