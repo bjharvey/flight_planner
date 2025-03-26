@@ -16,7 +16,7 @@ Clone the repository:
 git clone https://github.com/bjharvey/flight_planner.git
 ```
 
-## Usage
+## Running
 
 ### Option 1
 
@@ -61,6 +61,41 @@ And to update it if it's not:
 ```
 git pull origin main
 ```
+
+## Basic Usage Instructions
+
+1. On start up, select a save location *SAVE_DIR*. A subdirectory *data* is created for all outputs.
+2. To plan a flight:
+    - Edit WayPoints by clicking on the map:
+        - LEFT = append
+        - MIDDLE = insert
+        - RIGHT = delete
+        - DRAG = move
+    - Or, edit the text box directly and select *Update FlightDef*:
+        - Format for each WayPoint: Name, Longitude, Latitude, Altitude, Leg Type, Description [optional]
+        - Longitude/Latitude are in decimal degrees, Altitude is in feet
+        - Let Type determines the speed and must be one of the options listed after *Summary*
+3. To save a flight, click *Save*. This creates several files in *SAVE_DIR/flight_defs* including:
+        - a *.dat* file holding the basic info (for reloading into flight_planner)
+        - a *.gpx* file which can be imported into pilot's software, and windy.com
+        - a *.docx* file holding a partially completed sortie brief
+4. To load a flight, clisk *Load* and select either:
+        - a *.dat* file produced by flight_planner
+        - a *.gpx* file, e.g. produced by windy.com
+5. To overlay forecast images:
+        - Select *Met Image*
+        - Select *Retrieve* to download new images. This opens a new GUI for selecting model/domain/times etc (and entering credentials) and submitting the retrieval. Note: the retrieval simply attempts to download images matching the settings and will just fail if they can't be found. See terminal output for details. The files are saved in *SAVE_DIR/mo_images*.
+        - Select *Webpage* to open the source webpage (e.g. to check what is available)
+
+## User configuration file
+
+Campaign specific customisations can be made in `user_config.py`, including:
+    - The map projection used and its extent on start up
+    - Aircrafts and speeds/leg types
+    - Map annotations e.g. airports and FIR boundaries
+    - Sources of met images (including details of map projections and extents for each domain)
+
+Each source of met images has a `images_xxx.py` file which deals with downloading and displaying the relevant images. To add a new source, copy `images_mo.py` and adapt the functions to the new source.   
 
 ## Contributing
 
