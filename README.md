@@ -87,7 +87,7 @@ git pull origin main
     - Select *Retrieve* to download new images. This opens a new GUI for selecting model/domain/times etc (and entering credentials) and submitting the retrieval. Note: the retrieval simply attempts to download images matching the settings and will just fail if they can't be found. See terminal output for details. The files are saved in *SAVE_DIR/mo_images*.
     - Select *Webpage* to open the source webpage (e.g. to check what is available)
 
-### User configuration file
+### User Configuration
 
 Campaign specific customisations can be made in `user_config.py`, including:
 - The map projection used and its extent on start up
