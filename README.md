@@ -90,10 +90,10 @@ git pull origin main
 ### User configuration file
 
 Campaign specific customisations can be made in `user_config.py`, including:
-    - The map projection used and its extent on start up
-    - Aircrafts and speeds/leg types
-    - Map annotations e.g. airports and FIR boundaries
-    - Sources of met images (including details of map projections and extents for each domain)
+- The map projection used and its extent on start up
+- Aircrafts and speeds/leg types
+- Map annotations e.g. airports and FIR boundaries
+- Sources of met images (including details of map projections and extents for each domain)
 
 Each source of met images has a `images_xxx.py` file which deals with downloading and displaying the relevant images. To add a new source, copy `images_mo.py` and adapt the functions to the new source.   
 
