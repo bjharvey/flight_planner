@@ -95,7 +95,12 @@ Campaign specific customisations can be made in `user_config.py`, including:
 - Map annotations e.g. airports and FIR boundaries
 - Sources of met images (including details of map projections and extents for each domain)
 
-Each source of met images has a `images_xxx.py` file which deals with downloading and displaying the relevant images. To add a new source, copy `images_mo.py` and adapt the functions to the new source.   
+Each source of met images has a `images_xxx.py` file which deals with downloading and displaying the relevant images. Currently have used:
+- Met Office forecast images from http://gws-access.jasmin.ac.uk/public/mo_forecasts/restricted/ (restricted access)
+- ECMWF forecast images from https://charts.ecmwf.int/opencharts-api/v1/products 
+- Sea ice concentration images from https://cryo.met.no/archive/ice-service/icecharts/quicklooks
+
+To add a new source, copy `images_mo.py` and adapt the functions as required.   
 
 ### Contributing
 
