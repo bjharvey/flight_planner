@@ -147,8 +147,12 @@ met_options = ['mo', 'ec']
 # Specify models, domains and varnames to include
 mo_models = ['glm', 'teamx_ral3p2']
 mo_domains = ['Alps', 'TEAMx', 'EtschV', 'InnV']
-mo_varnames = ['RainSnowRates', 'cloud', 'T_1.5m', 'FogFr',
-               'WindSpdDir_10m', 'SnowAmount',]
+mo_varnames = ['RainSnowRates', 'cloud', 'CAPE', 'CIN', 'BLD',
+               'WindSpdDir_950hPa', 'WindSpdDir_850hPa', 'WindSpdDir_700hPa', 'WindSpdDir_600hPa',
+               'w-wind_950hPa', 'w-wind_850hPa', 'w-wind_700hPa', 'w-wind_600hPa',
+               'theta_950hPa', 'theta_850hPa', 'theta_700hPa', 'theta_600hPa']
+            # 'T_1.5m', 'FogFr',
+            #   'WindSpdDir_10m', 'SnowAmount',]
             #   'WindSpdDir_950hPa', 'WindSpdDir_850hPa', 'WindSpdDir_300hPa',
             #   'WBPT_950hPa', 'dtheta_950hPa', 'BLD', 'TCW', 'CldBase',
             #   'Vis_1.5m', 'T_1.5m']
