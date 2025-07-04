@@ -27,18 +27,31 @@ def get_image(datapath, campaign=None, model=None, domain=None, var=None,
 
     Optionally checks if the required file already exists and ignores if yes.
 
-    Plots are saved as <plotdir>/<campaign>/<model>/YYYYMMDD_HHZ/*.png
+    Plots are saved as <plotdir>/<campaign>/img/<model>/YYYYMMDD_HHZ/*.png
     """
     url0 = 'http://gws-access.jasmin.ac.uk/public/mo_forecasts/restricted/'
-    url1 = '{}/img/{}/{}/'.\
-           format(mo_campaign, model, fcsttime.strftime(datefmt))
-    leadhours = int(round((validtime - fcsttime).total_seconds() / 3600))
-    figname = mo_figname_templates[model].\
-        format(var, validtime.strftime(datefmt), leadhours, domain)
+    if var == 'Orog':
+        # Different format for static files
+        # Note: for TeamX, glm orog is in glm_short directory
+        if model == 'glm':
+            url1 = '{}/img/glm_short/'.format(campaign)
+        else:
+            url1 = '{}/img/{}/'.format(campaign, model)
+        figname = mo_figname_templates[model].\
+            format(var, 'NoTime', 'NoTime', domain)
+    else:
+        url1 = '{}/img/{}/{}/'.\
+               format(campaign, model, fcsttime.strftime(datefmt))
+        leadhours = int(round((validtime - fcsttime).total_seconds() / 3600))
+        figname = mo_figname_templates[model].\
+            format(var, validtime.strftime(datefmt), leadhours, domain)
     url = url0 + url1 + figname
     plotdir = set_plotdir(datapath, 'mo')
-    localdir = os.path.join(plotdir, mo_campaign, model,
-                            fcsttime.strftime(datefmt))
+    if var == 'Orog':
+        localdir = os.path.join(plotdir, mo_campaign, model)
+    else:
+        localdir = os.path.join(plotdir, mo_campaign, model,
+                                fcsttime.strftime(datefmt))
     localfigname = os.path.join(localdir, figname)
   
     if check_exists and os.path.isfile(localfigname):
