@@ -784,15 +784,17 @@ class PlannerGUI(tk.Tk):
                                           initialfile=self.flightdef.name,
                                           filetypes = [('.dat', '*.dat')])
         self.flightdef.savedat(fn)
-        self.flightdef.savetxt(fn.split('.')[0] + '.txt')
-        self.flightdef.savecsv(fn.split('.')[0] + '.csv')
-        self.flightdef.savegpx(fn.split('.')[0] + '.gpx')
+        fndir = os.path.dirname(fn)
+        fnname = os.path.basename(fn)
+        self.flightdef.savetxt(os.path.join(fndir, fnname.split('.')[0] + '.txt'))
+        self.flightdef.savecsv(os.path.join(fndir, fnname.split('.')[0] + '.csv'))
+        self.flightdef.savegpx(os.path.join(fndir, fnname.split('.')[0] + '.gpx'))
         # Save current image and include in doc
-        fnfig = fn.split('.')[0] + '_fig_for_sortie.png'
+        fnfig = os.path.join(fndir, fnname.split('.')[0] + '_fig_for_sortie.png')
         print('\nSAVE: Saving current figure for use in savedoc: {}'.\
               format(fnfig))
         self.fig.savefig(fnfig, dpi=200)
-        self.flightdef.savedoc(fn.split('.')[0] + '_sortie.docx', fnfig)
+        self.flightdef.savedoc(os.path.join(fndir, fnname.split('.')[0] + '_sortie.docx', fnfig))
         
     def load(self, event=None):
         """Called from load button"""
