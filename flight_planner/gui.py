@@ -794,7 +794,7 @@ class PlannerGUI(tk.Tk):
         print('\nSAVE: Saving current figure for use in savedoc: {}'.\
               format(fnfig))
         self.fig.savefig(fnfig, dpi=200)
-        self.flightdef.savedoc(os.path.join(fndir, fnname.split('.')[0] + '_sortie.docx', fnfig))
+        self.flightdef.savedoc(os.path.join(fndir, fnname.split('.')[0] + '_sortie.docx'), fnfig)
         
     def load(self, event=None):
         """Called from load button"""
