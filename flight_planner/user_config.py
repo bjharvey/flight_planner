@@ -32,7 +32,7 @@ def _reduce_threshold(projin, scale=100):
 # Initial projection and extent (lon0, lon1, lat0, lat1)
 # (makes sense to match MO projection if using that most)
 default_projection = ccrs.PlateCarree()
-initial_extent = [-25, 5, 44, 65]
+initial_extent = [-25, 5, 44, 64]
 
 # Format to use for all date strings
 datefmt = '%Y%m%d_%HZ'
