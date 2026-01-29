@@ -13,7 +13,6 @@ from matplotlib.widgets import RadioButtons
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import cartopy.geodesic as cgeodesic
-from cartopy.io.img_tiles import GoogleTiles
 import shapely
 
 from .flightdef import (FlightDef, is_near_airport, is_near_other_waypoints,

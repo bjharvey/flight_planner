@@ -3,7 +3,7 @@ Class definitions for WayPoint and FlightDef objects, plus some utility
 functions.
 """
 
-import os, sys
+import os
 import numpy as np
 import cartopy.geodesic as cgeodesic
 from docx import Document, shared

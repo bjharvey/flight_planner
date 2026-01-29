@@ -1,11 +1,8 @@
 """
-Setting up user config file for NAWDIC.
+Setting up user config file for TeamX.
 
-Set up to use data sources:
-    MO: main campaign plots on jasmin webpages
-            models = glm, ukv
-            domains = UK, xUKV
-    EC: ECCharts plots for 'arctic' domain - update for nw europe
+To do:
+    
 """
 
 import numpy as np
@@ -32,7 +29,7 @@ def _reduce_threshold(projin, scale=100):
 # Initial projection and extent (lon0, lon1, lat0, lat1)
 # (makes sense to match MO projection if using that most)
 default_projection = ccrs.PlateCarree()
-initial_extent = [-20, 3, 47, 62]
+initial_extent = [9.37, 12.93, 45.3, 48.15]
 
 # Format to use for all date strings
 datefmt = '%Y%m%d_%HZ'
@@ -54,18 +51,15 @@ legtype_cols = {'transit': 'k', 'science': 'r', 'special': 'b'}
 
 # Dictionary of airport locations (lon, lat, alt [ft])
 airports = {
-    #'CRAN': [-0.616667, 52.0722, 358],
-    #'BFS' : [-6.215833, 54.6575, 268],
-    'SNN' : [-8.924167, 52.6997, 46],
+    'CRAN': [-0.616667, 52.0722, 358],
+    'INN' : [11.343889, 47.260278, 1906],
     }
 
 # Airport isochrones based on transit speed.
 # Select airports to draw isochrones around and the distances to use
-hr123_radii = np.array([1, 2, 3])
-hr123_labels = ['1', '2', '3']
-airport_isochrones = {#'CRAN': (hr123_radii, hr123_labels),
-                      #'BFS' : (hr123_radii, hr123_labels),
-                      'SNN' : (hr123_radii, hr123_labels),}
+hr123_radii = np.array([0.25, 0.5, 0.75, 1, 2, 3])
+hr123_labels = ['15m', '30m', '45m', '1h', '2h', '3h']
+airport_isochrones = {'INN' : (hr123_radii, hr123_labels)}
 
 # FIR boundaries
 # These are drawn on the map (connected using straight lines in a PlateCarree
@@ -143,7 +137,7 @@ grid2 = {'xlocs': np.arange(-180, 180, 5),
 # Specify which Met Options to have available
 # To add new Met Options, need to create an XX_images.py file.
 #met_options = ['mo', 'ec', 'sic', 'ssh']
-met_options = ['mo', 'ec']#, 'ssh']
+met_options = ['mo', 'ec']
 
 
 ##############################
@@ -151,22 +145,30 @@ met_options = ['mo', 'ec']#, 'ssh']
 ##############################
     
 # Specify models, domains and varnames to include
-mo_models = ['glm', 'ukv']
-mo_domains = ['UK', 'xUKV']
-mo_varnames = ['RainSnowRates', 'cloud',
-               'WindSpdDir_10m', 'WindGust_10m', 'WindSpdDir_950hPa',
-               'WindSpdDir_850hPa', 'WindSpdDir_300hPa',
-               'WBPT_950hPa', 'dtheta_950hPa', 'BLD', 'TCW', 'CldBase',
-               'Vis_1.5m', 'T_1.5m']
+mo_models = ['glm', 'teamx_ral3p2']
+mo_domains = ['Alps', 'TEAMx', 'EtschV', 'InnV']
+mo_varnames = ['Orog', 'RainSnowRates', 'cloud', 'CAPE', 'CIN', 'BLD',
+               'WindSpdDir_950hPa', 'WindSpdDir_850hPa', 'WindSpdDir_700hPa', 'WindSpdDir_600hPa',
+               'w-wind_950hPa', 'w-wind_850hPa', 'w-wind_700hPa', 'w-wind_600hPa',
+               'theta_950hPa', 'theta_850hPa', 'theta_700hPa', 'theta_600hPa']
+            # 'T_1.5m', 'FogFr',
+            #   'WindSpdDir_10m', 'SnowAmount',]
+            #   'WindSpdDir_950hPa', 'WindSpdDir_850hPa', 'WindSpdDir_300hPa',
+            #   'WBPT_950hPa', 'dtheta_950hPa', 'BLD', 'TCW', 'CldBase',
+            #   'Vis_1.5m', 'T_1.5m']
 
 # Additional info required
-mo_campaign = 'main'
-mo_figname_templates = {'glm': '{}_oper-glm_{}_T{}_{}.png',
-                        'ukv': '{}_oper-ukv_{}_T{}_{}.png'}
-mo_projections = {'UK': {'proj' : _reduce_threshold(ccrs.PlateCarree()),
-                         'extents': [-11, 3, 48, 60]},
-                  'xUKV': {'proj' : _reduce_threshold(ccrs.PlateCarree()),
-                           'extents': [-25, 16, 44, 63.42]}}
+mo_campaign = 'TEAMx'
+mo_figname_templates = {'glm'         : '{}_oper-glm_{}_T{}_{}.png',
+                        'teamx_ral3p2': '{}_teamx_ral3p2_1km_{}_T{}_{}.png'}
+mo_projections = {'Alps' : {'proj' : _reduce_threshold(ccrs.PlateCarree()),
+                            'extents': [4.6, 15.6, 42.6, 49.35]},
+                  'TEAMx' : {'proj' : _reduce_threshold(ccrs.PlateCarree()),
+                             'extents': [9.37, 12.93, 45.3, 48.15]},
+                  'EtschV': {'proj' : _reduce_threshold(ccrs.PlateCarree()),
+                             'extents': [10.28, 12.2, 45.42, 47.08]},
+                  'InnV'  : {'proj' : _reduce_threshold(ccrs.PlateCarree()),
+                             'extents': [10.67, 12.34, 46.9, 47.89]}}
 
 # Additional lines to plot if cross sections are available
 mo_xsecs = []
@@ -177,10 +179,10 @@ mo_xsecs = []
 ##############################
 
 # Specify domains, projections and varnames
-ec_domains = ['north_west_europe']
-ec_projections = {'north_west_europe': {
+ec_domains = ['central_europe']
+ec_projections = {'central_europe': {
         'proj' : ccrs.NorthPolarStereo(central_longitude=0, globe=None),
-        'extents': [-43.4, 40, 69, 46]}}
+        'extents': [-12, 37, 37, 55]}}
 ec_varnames = ['medium-mslp-wind850', 'medium-mslp-wind200',
                'medium-z500-t850', 'medium-clouds',
                'medium-simulated-wbpt', 'medium-2mt-wind30',
