@@ -134,8 +134,8 @@ fir_boundaries = {
     }
 
 # Gridlines (grid1=dashed, grid2=solid)
-grid1 = {'xlocs': np.arange(-180, 180, 1),
-         'ylocs': np.arange(0, 91, 1)}
+grid1 = {'xlocs': np.arange(-180, 180, 2.5),
+         'ylocs': np.arange(0, 91, 2.5)}
 grid2 = {'xlocs': np.arange(-180, 180, 5),
          'ylocs': np.arange(0, 91, 5)}
 
