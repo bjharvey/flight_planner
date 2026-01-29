@@ -186,7 +186,8 @@ def setup_ax(self):
                                      self.layout['ax'][2],
                                      axpos[1] * 0.98 - self.layout['ax'][1]])
         ax.axcb.set_axis_off()
-    self.coast = ax.add_feature(cfeature.BORDERS, linestyle=':')#ax.coastlines('50m')
+    #self.coast = ax.add_feature(cfeature.BORDERS, linestyle=':')
+    self.coast = ax.coastlines('50m')
     self.ax = ax
 
 
